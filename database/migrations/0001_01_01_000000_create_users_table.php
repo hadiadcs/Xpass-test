@@ -35,6 +35,36 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('events', function (Blueprint $table) {
+        $table->id();
+        $table->string('title');
+        $table->text('description');
+        $table->string('location');
+        $table->dateTime('start_date');
+        $table->dateTime('end_date');
+        $table->decimal('price', 8, 2);
+        $table->integer('total_tickets');
+        $table->integer('available_tickets');
+        $table->string('image')->nullable();
+        $table->string('category');
+        $table->enum('status', ['active', 'cancelled', 'completed'])
+              ->default('active');
+        $table->foreignId('organizer_id')->constrained('users')->onDelete('cascade');
+        $table->timestamps();
+        });
+
+        Schema::create('bookings', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->foreignId('event_id')->constrained()->onDelete('cascade');
+        $table->integer('quantity');
+        $table->decimal('total_amount', 10, 2);
+        $table->string('booking_reference')->unique();
+        $table->enum('status', ['pending', 'confirmed', 'cancelled'])
+              ->default('pending');
+        $table->timestamps();
+        });
     }
 
     /**
@@ -45,5 +75,7 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('events');
+        Schema::dropIfExists('bookings');
     }
 };
